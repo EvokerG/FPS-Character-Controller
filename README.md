@@ -13,8 +13,8 @@ Setup process:
 
   ![image](https://github.com/EvokerG/FPS-Character-Controller/assets/142021665/bf42dbed-0d9a-4ef1-b297-f05c4de6ec9a)
 
-   PlayerObject ▽
-         PlayerViewCamera ▽
-                      PlayerGun ▽
-                           GunAttachments
+   PlayerObject ▽   
+   ㅤPlayerViewCamera ▽  
+   ㅤㅤㅤㅤㅤㅤㅤㅤPlayerGun ▽   
+   ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤGunAttachments
        
