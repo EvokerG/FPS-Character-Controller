@@ -5,32 +5,32 @@ using TMPro;
 
 public class CharacterControl : MonoBehaviour
 {
-    public GameObject Camera;
-    public float Acceleration;
-    public float Speed;
-    public float RunSpeedCoefficient;
-    public float RunStaminaDepleat;
-    public float Glide;
+    public GameObject Camera; //Camera attached to the player
+    public float Acceleration; //Controls how long will it take for player to gain full move speed or to fully stop
+    public float Speed; //Base player speed
+    public float RunSpeedCoefficient; //How faster player moves while running
+    public float RunStaminaDepleat; //How much stamina is used for running for 1 second
+    public float Glide; //How well is player allowed to contol movenet wile in air (0 - No control, 1 - Same as on the ground)
     float Grav;
-    public float Gravity;
-    public float JumpStrength;
-    public float JumpStaminaDepleat;
-    public float MaxStamina;
-    public float StaminaDelay;
-    public float StaminaRegen;
-    RaycastHit info;
-    float Stamina;
-    public GameObject StaminaBar;
+    public float Gravity; //Acceleration of free fall
+    public float JumpStrength; //How high player jumps
+    public float JumpStaminaDepleat; //How much stamina it takes to make 1 jump
+    public float MaxStamina; 
+    public float StaminaDelay; //How many seconds passes before player starts gaining stamina back after latest activity that consumes stamina
+    public float StaminaRegen; //How many stamina is regained in 1 second
+    RaycastHit info; 
+    float Stamina; //Current stamina value
+    public GameObject StaminaBar; 
     Vector3 MoveDirection;
     Vector3 LastDirection;
-    bool OnGround;
-    bool PrevOnGround;
-    float LastActivity;
+    bool OnGround; 
+    bool PrevOnGround; //Was player on the ground last frame
+    float LastActivity; 
     public float HorisontalSensetivity;
     public float VerticalSensetivity;
     public float MinCameraAngle;
     public float MaxCameraAngle;
-    public bool Controlability;
+    public bool Controlability; //Is game unpaused
     bool PausedStaminaDelay;
     float PauseStart;
     float VerticalRotation;
@@ -89,7 +89,7 @@ public class CharacterControl : MonoBehaviour
                 MoveDirection = Vector3.ClampMagnitude(MoveDirection, 1);
                 if (OnGround)
                 {
-                    if (Input.GetKey(KeyCode.LeftShift) && Stamina > 0 && MoveDirection.magnitude > 0)
+                    if (Input.GetKey(KeyCode.LeftShift) && Stamina > 0 && MoveDirection.magnitude > 0) //Running
                     {
                         MoveDirection *= RunSpeedCoefficient;
                         MoveDirection = Vector3.Lerp(LastDirection, MoveDirection, Acceleration);
@@ -105,8 +105,8 @@ public class CharacterControl : MonoBehaviour
                 }
                 else
                 {
-                    MoveDirection = Vector3.Lerp(LastDirection, MoveDirection, Acceleration * Glide);
-                    if (Input.GetKeyDown(KeyCode.Space))
+                    MoveDirection = Vector3.Lerp(LastDirection, MoveDirection, Acceleration * Glide); //Controlling player mid-air
+                    if (Input.GetKeyDown(KeyCode.Space)) //Speed boost if jumping before falling
                     {
                         MoveDirection *= RunSpeedCoefficient;
                     }
@@ -118,7 +118,7 @@ public class CharacterControl : MonoBehaviour
                 {
                     OnGround = true;
                     Grav = 0;
-                }
+                } //Determening if player is on the ground
                 if (Input.GetKeyDown(KeyCode.Space) && Stamina >= JumpStaminaDepleat && OnGround)
                 {
                     OnGround = false;
@@ -126,24 +126,18 @@ public class CharacterControl : MonoBehaviour
                     Stamina -= JumpStaminaDepleat;
                     LastActivity = Time.realtimeSinceStartup;
                 }
-                if (OnGround && !PrevOnGround)
+                if (OnGround && !PrevOnGround) //Makes player unable to regain stamina while mid-air
                 {
                     LastActivity = Time.realtimeSinceStartup;
                 }
                 gameObject.GetComponent<CharacterController>().Move(Vector3.down * Grav);
-                if (Time.realtimeSinceStartup >= LastActivity + StaminaDelay)
+                if (Time.realtimeSinceStartup >= LastActivity + StaminaDelay) //Regaining stamina
                 {
                     Stamina = Mathf.Clamp(Stamina + StaminaRegen * Time.deltaTime, 0, MaxStamina);
                 }
                 StaminaBar.transform.localScale = new Vector3(Stamina / MaxStamina * 2, 1, 1);
                 PrevOnGround = OnGround;
             }//Movement
-            {
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    E.SetActive(!E.activeInHierarchy);
-                }
-            }
             {
                 gameObject.transform.Rotate(Vector3.up, Input.GetAxis("Mouse X") * HorisontalSensetivity);
                 VerticalRotation = -Input.GetAxis("Mouse Y") * VerticalSensetivity;
@@ -152,7 +146,7 @@ public class CharacterControl : MonoBehaviour
                     VerticalRotation = MinCameraAngle + Camera.transform.rotation.eulerAngles.x;
                 }
                 VerticalRotation += Camera.transform.rotation.eulerAngles.x;
-                if (VerticalRotation > 180)
+                if (VerticalRotation > 180) //Clamping camera rotation
                 {
                     if (VerticalRotation < 360 - MaxCameraAngle)
                         VerticalRotation = 360 - MaxCameraAngle;
@@ -169,7 +163,7 @@ public class CharacterControl : MonoBehaviour
                 Camera.transform.localRotation = Quaternion.Euler(new Vector3(VerticalRotation, 0, 0));
             }//Turning
             {
-                if (Stamina == MaxStamina)
+                if (Stamina == MaxStamina) //Stamina bar rendering
                 {
                     StaminaBar.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Clamp01(StaminaBar.GetComponent<CanvasRenderer>().GetAlpha() - StaminaDisappear * Time.deltaTime));
                     StaminaBar.transform.parent.GetComponent<CanvasRenderer>().SetAlpha(Mathf.Clamp01(StaminaBar.transform.parent.GetComponent<CanvasRenderer>().GetAlpha() - StaminaDisappear * Time.deltaTime));
@@ -187,7 +181,7 @@ public class CharacterControl : MonoBehaviour
                     {
                         switch (gameObject.GetComponentInChildren<Gun>().CurShootType)
                         {
-                            case "auto":
+                            case "auto": //Different modes
                                 if (LastShot + gameObject.GetComponentInChildren<Gun>().FireRate + Delay < Time.realtimeSinceStartup)
                                 {
                                     gameObject.GetComponentInChildren<Gun>().Shoot();
@@ -223,7 +217,7 @@ public class CharacterControl : MonoBehaviour
                         gameObject.GetComponentInChildren<Gun>().gameObject.transform.LookAt(Camera.GetComponent<Camera>().ScreenToWorldPoint(new Vector3(UnityEngine.Camera.main.pixelWidth/2, UnityEngine.Camera.main.pixelHeight/2,500f)));
                     }
                 }
-            }//Aiming
+            }//Aiming towards center of the screen
             {
                 if(gameObject.GetComponentInChildren<Gun>() == null)
                 {
@@ -232,7 +226,7 @@ public class CharacterControl : MonoBehaviour
                 else
                 {
                     Ammo.SetActive(true);
-                    Ammo.GetComponent<TMP_Text>().text = gameObject.GetComponentInChildren<Gun>().MagCap.ToString();
+                    Ammo.GetComponent<TMP_Text>().text = gameObject.GetComponentInChildren<Gun>().MagCap.ToString(); //Ammo count 
                 }
             }
         }
